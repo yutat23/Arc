@@ -45,7 +45,8 @@ func detectArch(path string) (string, error) {
 	signature := make([]byte, 4)
 	if _, err := file.Read(signature); err != nil {
 		return "", err
-	}	if string(signature) != "PE\x00\x00" {
+	}
+	if string(signature) != "PE\x00\x00" {
 		return "", fmt.Errorf("PE signature not found")
 	}
 
@@ -62,7 +63,8 @@ func detectArch(path string) (string, error) {
 	case 0x8664:
 		return "x64", nil
 	case 0x01c0, 0xaa64:
-		return "ARM", nil	default:
+		return "ARM", nil
+	default:
 		return fmt.Sprintf("Unknown (0x%X)", code), nil
 	}
 }
