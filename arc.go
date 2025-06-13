@@ -8,14 +8,14 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("使い方: go-arch-check file.exe [file2.exe ...]")
+		fmt.Println("Usage: arc file.exe [file2.exe ...]")
 		return
 	}
 
 	for _, path := range os.Args[1:] {
 		arch, err := detectArch(path)
 		if err != nil {
-			fmt.Printf("%s: エラー - %v\n", path, err)
+			fmt.Printf("%s: Error - %v\n", path, err)
 		} else {
 			fmt.Printf("%s: %s\n", path, arch)
 		}
@@ -45,9 +45,8 @@ func detectArch(path string) (string, error) {
 	signature := make([]byte, 4)
 	if _, err := file.Read(signature); err != nil {
 		return "", err
-	}
-	if string(signature) != "PE\x00\x00" {
-		return "", fmt.Errorf("PEシグネチャが見つかりません")
+	}	if string(signature) != "PE\x00\x00" {
+		return "", fmt.Errorf("PE signature not found")
 	}
 
 	// Machine フィールド（2バイト）
@@ -63,8 +62,7 @@ func detectArch(path string) (string, error) {
 	case 0x8664:
 		return "x64", nil
 	case 0x01c0, 0xaa64:
-		return "ARM", nil
-	default:
-		return fmt.Sprintf("未知 (0x%X)", code), nil
+		return "ARM", nil	default:
+		return fmt.Sprintf("Unknown (0x%X)", code), nil
 	}
 }
