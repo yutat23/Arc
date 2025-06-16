@@ -118,14 +118,17 @@ func showGUIMessage(title, message string) {
 	}
 }
 
+// コマンド実行のヘルパー関数
+func runCommandArgs(cmdName string, args ...string) error {
+	cmd := exec.Command(cmdName, args...)
+	return cmd.Run()
+}
+
 // macOS用のダイアログ表示関数
 func showMacDialog(title, message string) {
-	// osascriptを使ってAppleScriptでダイアログを表示
-	cmd := fmt.Sprintf(`osascript -e 'display dialog "%s" with title "%s" buttons {"OK"} default button "OK"'`, 
-		strings.ReplaceAll(message, `"`, `\"`), 
-		strings.ReplaceAll(title, `"`, `\"`))
-	
-	if err := runCommand(cmd); err != nil {
+	// AppleScriptでダイアログを表示（text型で渡す）
+	script := fmt.Sprintf(`display dialog %q with title %q buttons {"OK"} default button "OK"`, message, title)
+	if err := runCommandArgs("osascript", "-e", script); err != nil {
 		// フォールバック：標準出力に表示
 		fmt.Printf("\n=== %s ===\n%s\n", title, message)
 	}
@@ -133,30 +136,22 @@ func showMacDialog(title, message string) {
 
 // Linux用のダイアログ表示関数
 func showLinuxDialog(title, message string) {
-	// zenityまたはkdialogを試す
-	commands := []string{
-		fmt.Sprintf(`zenity --info --title="%s" --text="%s"`, title, message),
-		fmt.Sprintf(`kdialog --msgbox "%s" --title "%s"`, message, title),
-		fmt.Sprintf(`xmessage -title "%s" "%s"`, title, message),
+	// 利用可能なダイアログツールを自動検出
+	candidates := []struct {
+		cmd  string
+		args []string
+	}{
+		{"zenity", []string{"--info", "--title", title, "--text", message}},
+		{"kdialog", []string{"--msgbox", message, "--title", title}},
+		{"xmessage", []string{"-title", title, message}},
 	}
-	
-	for _, cmd := range commands {
-		if err := runCommand(cmd); err == nil {
-			return // 成功したら終了
+	for _, c := range candidates {
+		if _, err := exec.LookPath(c.cmd); err == nil {
+			if err := runCommandArgs(c.cmd, c.args...); err == nil {
+				return // 成功したら終了
+			}
 		}
 	}
-	
 	// フォールバック：標準出力に表示
 	fmt.Printf("\n=== %s ===\n%s\n", title, message)
-}
-
-// コマンド実行のヘルパー関数
-func runCommand(cmdLine string) error {
-	parts := strings.Fields(cmdLine)
-	if len(parts) == 0 {
-		return fmt.Errorf("empty command")
-	}
-	
-	cmd := exec.Command(parts[0], parts[1:]...)
-	return cmd.Run()
 }
