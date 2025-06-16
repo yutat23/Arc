@@ -11,7 +11,7 @@
     go build -o $outputFile -ldflags "-s -w"
 
     # ZIP化
-    $zipPath = "release/arc$target.zip"
+    $zipPath = "release/arc_$target.zip"
     mkdir -Force "release" | Out-Null
     if (Test-Path $zipPath) { Remove-Item $zipPath }
     Compress-Archive -Path "$buildDir/*" -DestinationPath $zipPath
