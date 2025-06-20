@@ -1,0 +1,13 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Classes\exefile\shell\ArcCheckArchitecture]
+@="arc - Check Architecture"
+
+[HKEY_CURRENT_USER\Software\Classes\exefile\shell\ArcCheckArchitecture\command]
+@="cmd /c start C:\\bin\\arc.exe -g \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\dllfile\shell\ArcCheckArchitecture]
+@="arc - Check Architecture"
+
+[HKEY_CURRENT_USER\Software\Classes\dllfile\shell\ArcCheckArchitecture\command]
+@="cmd /c start C:\\bin\\arc.exe -g \"%1\""
